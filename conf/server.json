@@ -1,0 +1,8 @@
+{
+	"RtmpPort":1935,
+	"HttpPort": 8081,
+	"LogPath":"./log/bblive.log",
+	"LogLvl":7,
+	"Srvid":1,   
+	"PProf":true
+}
