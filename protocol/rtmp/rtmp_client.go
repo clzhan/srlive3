@@ -89,6 +89,31 @@ func ConnectPull(url string) (s *RtmpNetStream, err error) {
 	s.play(file,rtmpURL.instanceName, "live")
 	return
 }
+
+
+func ConnectPush(url string) (s *RtmpNetStream, err error)  {
+	// protocol://host[:port]/[appname[/instanceName]]
+	rtmpURL,err := ParseURL(url);
+	if err != nil {
+		return nil,err
+	}
+	file := rtmpURL.app + "/" + rtmpURL.instanceName
+	addr := rtmpURL.protocol + "://" + rtmpURL.host + ":" + strconv.Itoa(int(rtmpURL.port))  + "/" + rtmpURL.app
+
+	conn := newNetConnection()
+
+	err = conn.Connect(addr)
+	if err != nil {
+		log.Error("err %v",err)
+		return
+	}
+	s = newNetStream(conn, nil, clientHandler)
+
+	log.Info("push......")
+	s.push(file,rtmpURL.instanceName, "live")
+	return
+}
+
 func newNetConnection() (c *RtmpNetConnection) {
 	c = new(RtmpNetConnection)
 	c.readChunkSize = RTMP_DEFAULT_CHUNK_SIZE

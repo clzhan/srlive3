@@ -80,7 +80,7 @@ func main() {
 	log.Debug("rtmp ListenAndServer :", RtmpAddress)
 
 
-	rtmp.ConnectPull("rtmp://10.10.6.39:1935/live/movie")
+	//rtmp.ConnectPull("rtmp://10.10.6.39:1935/live/movie")
 
 	// do event loop
 	select {}

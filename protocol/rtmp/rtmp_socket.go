@@ -408,6 +408,20 @@ func sendPlay(conn *RtmpNetConnection, name string, start, duration int, rest bo
 	return writeMessage(conn, m)
 }
 
+func sendPublish(conn *RtmpNetConnection, name string, start, duration int, rest bool) error {
+	m := new(PlayMessage)
+	m.Command = "publish"
+	m.TransactionId = 1
+	m.StreamName = name
+	m.Start = uint64(start)
+	m.Duration = uint64(duration)
+	m.Rest = rest
+	m.Encode0()
+	head := newRtmpHeader(RTMP_CHANNEL_COMMAND, 0, len(m.Payload), RTMP_MSG_AMF_CMD, 0, 0)
+	m.RtmpHeader = head
+	return writeMessage(conn, m)
+}
+
 func sendConnectResult(conn *RtmpNetConnection, level, code string) error {
 	result := new(ReplyConnectMessage)
 	result.Command = NetStatus_Result

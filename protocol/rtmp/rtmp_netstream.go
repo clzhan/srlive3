@@ -286,6 +286,71 @@ func (s *RtmpNetStream) play(streamPath string, streamName string, args ...Args)
 	return nil
 }
 
+func (s *RtmpNetStream) push(streamPath string, streamName string, args ...Args) error {
+	s.streamName = streamPath
+	conn := s.conn
+	s.mode = rtmpconst.MODE_CONSUMER
+
+	log.Debug("send create stream.....")
+	sendCreateStream(conn)
+	for {
+		msg, err := readMessage(conn)
+		if err != nil {
+			return err
+		}
+
+		if m, ok := msg.(*UnknowCommandMessage); ok {
+			log.Debug(m)
+			continue
+		}
+		reply := new(ReplyCreateStreamMessage)
+		reply.Decode0(msg.Header(), msg.Body())
+		log.Debug(reply)
+		conn.streamid = reply.StreamId
+		break
+	}
+	log.Debug("send push.....")
+	sendPublish(conn, streamName, 0, 0, false)
+	for {
+		msg, err := readMessage(conn)
+		if err != nil {
+			return err
+		}
+		if m, ok := msg.(*UnknowCommandMessage); ok {
+			log.Debug(m)
+			continue
+		}
+		result := new(ReplyPublishMessage)
+		result.Decode0(msg.Header(), msg.Body())
+		log.Debug(result)
+		code := getString(result.Infomation, "code")
+		if code == NetStream_Publish_Idle {
+			continue
+		} else if code == NetStream_Publish_Start {
+			break
+		} else {
+			return errors.New(code)
+		}
+	}
+	sendSetBufferMessage(conn)
+
+	if strings.HasSuffix(conn.app, "/") {
+		s.path = conn.app + strings.Split(streamName, "?")[0]
+	} else {
+		s.path = conn.app + "/" + strings.Split(streamName, "?")[0]
+	}
+
+	err := s.notifyPublishing()
+	if err != nil {
+		return err
+	}
+	go s.writeLoop()
+	return nil
+}
+
+
+
+
 func (s *RtmpNetStream) BufferTime() time.Duration {
 	return s.bufferTime
 }

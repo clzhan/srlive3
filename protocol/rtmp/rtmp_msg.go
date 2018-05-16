@@ -1243,6 +1243,29 @@ func (p *ReplyPublishMessage) Encode0() {
 	p.Payload = amf.Bytes()
 }
 
+func (p *ReplyPublishMessage) Decode0(head *RtmpHeader, body Payload) {
+	//fmt.Printf("%v\n", string(body))
+	amf := newDecoder(body)
+	if obj, err := amf.readData(); err == nil {
+		p.Command = obj.(string)
+	}
+	if obj, err := amf.readData(); err == nil {
+		p.TransactionId = uint64(obj.(float64))
+	}
+	obj, err := amf.readData()
+	//fmt.Printf("%v\n", obj)
+	if err == nil && obj != nil {
+		p.Properties = obj
+	}
+
+	obj, err = amf.readData()
+	//fmt.Printf("%v\n", obj)
+	if err == nil && obj != nil {
+		p.Infomation = obj
+	}
+}
+
+
 //func (p *ReplyPublishMessage) Encode3() {
 //	p.Encode0()
 //	buf := new(bytes.Buffer)
