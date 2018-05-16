@@ -2,7 +2,7 @@ package hls
 
 import (
 
-	"github.com/clzhan/srlive2/log"
+	"github.com/clzhan/srlive3/log"
 	"github.com/clzhan/srlive3/avformat"
 )
 

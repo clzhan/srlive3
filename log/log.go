@@ -9,7 +9,7 @@ import (
 	"github.com/astaxie/beego/logs"
 )
 
-func init() {
+func Init() {
 	if conf.AppConf.LogLvl == 7 {
 		SetLogFuncCall(true)
 	}

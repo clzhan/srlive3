@@ -4,7 +4,7 @@ package stream
 import (
 "time"
 
-"github.com/clzhan/srlive2/log"
+"github.com/clzhan/srlive3/log"
 cmap "github.com/streamrail/concurrent-map"
 )
 

@@ -3,7 +3,7 @@ package hls
 import (
 	"log"
 
-	"github.com/clzhan/srlive2/util"
+	"github.com/clzhan/srlive3/utils"
 )
 
 // write data from frame(header info) and buffer(data) to ts file.

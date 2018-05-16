@@ -42,4 +42,5 @@ func Init() {
 	}
 
 	fmt.Println("conf : ", AppConf)
+
 }

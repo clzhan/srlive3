@@ -830,6 +830,9 @@ func (p *PlayMessage) Encode0() {
 		amf.writeNumber(float64(p.Duration))
 	}
 	amf.writeBool(p.Rest)
+
+
+
 	p.Payload = amf.Bytes()
 }
 
