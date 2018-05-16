@@ -65,22 +65,22 @@ func main() {
 	conf.Init()
 	log.Init()
 
-	//err := startHttpServer()
-	//log.Info("ListenAndServerHttpServer error :", err)
-	//
-	//RtmpAddress := util.GetLocalIp()
-	//RtmpAddress += ":"
-	//RtmpAddress += strconv.Itoa(conf.AppConf.RtmpPort)
-	//
-	//err = rtmp.ListenAndServer(RtmpAddress)
-	//if err != nil {
-	//	panic(err)
-	//}
-	//
-	//log.Debug("rtmp ListenAndServer :", RtmpAddress)
+	err := startHttpServer()
+	log.Info("ListenAndServerHttpServer error :", err)
+
+	RtmpAddress := util.GetLocalIp()
+	RtmpAddress += ":"
+	RtmpAddress += strconv.Itoa(conf.AppConf.RtmpPort)
+
+	err = rtmp.ListenAndServer(RtmpAddress)
+	if err != nil {
+		panic(err)
+	}
+
+	log.Debug("rtmp ListenAndServer :", RtmpAddress)
 
 
-	rtmp.ConnectPull("rtmp://10.10.6.175:1935/live/movie")
+	rtmp.ConnectPull("rtmp://10.10.6.39:1935/live/movie")
 
 	// do event loop
 	select {}

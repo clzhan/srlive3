@@ -229,6 +229,7 @@ func (s *RtmpNetStream) play(streamName string, args ...Args) error {
 	s.streamName = streamName
 	conn := s.conn
 	s.mode = rtmpconst.MODE_PRODUCER
+	log.Debug("send create stream.....")
 	sendCreateStream(conn)
 	for {
 		msg, err := readMessage(conn)
@@ -246,6 +247,7 @@ func (s *RtmpNetStream) play(streamName string, args ...Args) error {
 		conn.streamid = reply.StreamId
 		break
 	}
+	log.Debug("send play.....")
 	sendPlay(conn, streamName, 0, 0, false)
 	for {
 		msg, err := readMessage(conn)
@@ -556,9 +558,11 @@ func (s *RtmpNetStream) notifyPublishing() error {
 
 func (s *RtmpNetStream) notifyPlaying() error {
 	if s.sh != nil {
+		log.Info("notifyPlaying server OnPlaying..... ")
 		return s.sh.OnPlaying(s)
 	}
 	if s.ch != nil {
+		log.Info("notifyPlaying client OnPlaying..... ")
 		return s.ch.OnPlayStart(s)
 	}
 	return errors.New("Handler Not Found")

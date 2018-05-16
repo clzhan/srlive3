@@ -817,6 +817,14 @@ type PlayMessage struct {
 	Rest       bool
 }
 
+// 命令名 -> 命令名,设置为”play”
+// 传输ID -> 0
+// 命令对象
+// 流名字 -> 要播放流的名字
+// start -> 可选的参数,以秒为单位定义开始时间.默认值为 -2,表示用户首先尝试播放流名字段中定义的直播流.
+// Duration -> 可选的参数,以秒为单位定义了回放的持续时间.默认值为 -1.-1 值意味着一个直播流会一直播放直到它不再可用或者一个录制流一直播放直到结束
+// Reset -> 可选的布尔值或者数字定义了是否对以前的播放列表进行 flush
+
 func (p *PlayMessage) Encode0() {
 	amf := newEncoder()
 	amf.writeString(p.Command)

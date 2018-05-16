@@ -24,6 +24,8 @@ func ConnectPull(url string) (s *RtmpNetStream, err error) {
 		return
 	}
 	s = newNetStream(conn, nil, clientHandler)
+
+	log.Info("play......")
 	s.play(file, "live")
 	return
 }

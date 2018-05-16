@@ -31,6 +31,7 @@ func (this *DefaultClientHandler) OnPublishStart(s *RtmpNetStream) error {
 }
 func (this *DefaultClientHandler) OnPlayStart(s *RtmpNetStream) error {
 	if obj, found := stream.FindObject(s.streamName); !found {
+		log.Info("not found %s, New_streamObject ",s.streamName)
 		obj, err := stream.New_streamObject(s.streamName, 90*time.Second, true, 10)
 		if err != nil {
 			return err
