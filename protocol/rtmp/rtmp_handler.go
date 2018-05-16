@@ -78,12 +78,18 @@ func (p *DefaultServerHandler) OnPublishing(s *RtmpNetStream) error {
 func (p *DefaultServerHandler) OnPlaying(s *RtmpNetStream) error {
 	// 根据订阅者(s)提供的信息,来查找订阅者需要订阅的广播,如果找到了,那么就让这个广播添加这个订阅者
 	if obj, found := stream.FindObject(s.streamName); !found {
+
+		log.Info("OnPlaying FindObject not found...",s.streamName)
+
 		obj, err := stream.New_streamObject(s.streamName, 90*time.Second, true, 10)
 		if err != nil {
 			return err
 		}
 		s.obj = obj
 	} else {
+
+		log.Info("OnPlaying FindObject found...",s.streamName)
+
 		s.obj = obj
 	}
 	s.obj.Attach(s)

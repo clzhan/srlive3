@@ -5,16 +5,76 @@ import (
 	"time"
 	"bytes"
 	"github.com/clzhan/srlive3/log"
+	"fmt"
+	"errors"
+	"strconv"
 )
 
 var clientHandler ClientHandler = new(DefaultClientHandler)
 
-func ConnectPull(url string) (s *RtmpNetStream, err error) {
-	//rtmp://host:port/xxx/xxxx
-	ss := strings.Split(url, "/")
-	addr := ss[0] + "//" + ss[2] + "/" + ss[3]
+type RtmpURL struct {
+	protocol     string
+	host         string
+	port         uint16
+	app          string
+	instanceName string
+}
 
-	file := strings.Join(ss[4:], "/")
+// Parse url
+//
+// To connect to Flash Media Server, pass the URI of the application on the server.
+// Use the following syntax (items in brackets are optional):
+//
+// protocol://host[:port]/[appname[/instanceName]]
+func ParseURL(url string) (rtmpURL RtmpURL, err error) {
+	s1 := strings.SplitN(url, "://", 2)
+	if len(s1) != 2 {
+		err = errors.New(fmt.Sprintf("Parse url %s error. url invalid.", url))
+		return
+	}
+	rtmpURL.protocol = strings.ToLower(s1[0])
+	s1 = strings.SplitN(s1[1], "/", 2)
+	if len(s1) != 2 {
+		err = errors.New(fmt.Sprintf("Parse url %s error. no app!", url))
+		return
+	}
+	s2 := strings.SplitN(s1[0], ":", 2)
+	if len(s2) == 2 {
+		var port int
+		port, err = strconv.Atoi(s2[1])
+		if err != nil {
+			err = errors.New(fmt.Sprintf("Parse url %s error. port error: %s.", url, err.Error()))
+			return
+		}
+		if port > 65535 || port <= 0 {
+			err = errors.New(fmt.Sprintf("Parse url %s error. port error: %d.", url, port))
+			return
+		}
+		rtmpURL.port = uint16(port)
+	} else {
+		rtmpURL.port = 1935
+	}
+	if len(s2[0]) == 0 {
+		err = errors.New(fmt.Sprintf("Parse url %s error. host is empty.", url))
+		return
+	}
+	rtmpURL.host = s2[0]
+
+	s2 = strings.SplitN(s1[1], "/", 2)
+	rtmpURL.app = s2[0]
+	if len(s2) == 2 {
+		rtmpURL.instanceName = s2[1]
+	}
+	return
+}
+func ConnectPull(url string) (s *RtmpNetStream, err error) {
+	// protocol://host[:port]/[appname[/instanceName]]
+	rtmpURL,err := ParseURL(url);
+	if err != nil {
+		return nil,err
+	}
+	file := rtmpURL.app + "/" + rtmpURL.instanceName
+	addr := rtmpURL.protocol + "://" + rtmpURL.host + ":" + strconv.Itoa(int(rtmpURL.port))  + "/" + rtmpURL.app
 
 	conn := newNetConnection()
 
@@ -26,7 +86,7 @@ func ConnectPull(url string) (s *RtmpNetStream, err error) {
 	s = newNetStream(conn, nil, clientHandler)
 
 	log.Info("play......")
-	s.play(file, "live")
+	s.play(file,rtmpURL.instanceName, "live")
 	return
 }
 func newNetConnection() (c *RtmpNetConnection) {

@@ -225,8 +225,8 @@ func (s *RtmpNetStream) StreamObject() *stream.StreamObject {
 	return s.obj
 }
 
-func (s *RtmpNetStream) play(streamName string, args ...Args) error {
-	s.streamName = streamName
+func (s *RtmpNetStream) play(streamPath string, streamName string, args ...Args) error {
+	s.streamName = streamPath
 	conn := s.conn
 	s.mode = rtmpconst.MODE_PRODUCER
 	log.Debug("send create stream.....")
@@ -271,6 +271,7 @@ func (s *RtmpNetStream) play(streamName string, args ...Args) error {
 		}
 	}
 	sendSetBufferMessage(conn)
+
 	if strings.HasSuffix(conn.app, "/") {
 		s.path = conn.app + strings.Split(streamName, "?")[0]
 	} else {
@@ -372,11 +373,14 @@ func (s *RtmpNetStream) readLoop() {
 
 		msg, err = readMessage(conn)
 		if err != nil {
+			log.Error("err..",err)
 			s.notifyError(err)
 			return
 		}
+
 		//log.Debug("<<<<< ", msg)
 		if msg.Header().MessageLength <= 0 {
+			log.Error("MessageLength <=0")
 			return
 		}
 		if am, ok := msg.(*AudioMessage); ok {
@@ -569,6 +573,7 @@ func (s *RtmpNetStream) notifyPlaying() error {
 }
 
 func (s *RtmpNetStream) notifyError(err error) {
+	log.Info("notifyError err..... ", err)
 	if s.sh != nil {
 		s.sh.OnError(s, err)
 	}
