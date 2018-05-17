@@ -931,6 +931,9 @@ func (m *ReplyPlayMessage) String() string {
 	return fmt.Sprintf("ReplyPlayMessage(%d) %v", len(m.Payload), string(b))
 }
 
+// Play2 Message
+// Unlike the play command, play2 can switch to a different bit rate stream without changing the timeline of the content played. The
+// server maintains multiple files for all supported bitrates that the client can request in play2.
 type Play2Message struct {
 	CommandMessage
 	StartTime     uint64
@@ -980,6 +983,8 @@ func (m *Play2Message) String() string {
 	return fmt.Sprintf("Play2Message(%d) %v", len(m.Payload), string(b))
 }
 
+// Delete Stream Message
+// NetStream sends the deleteStream command when the NetStream object is getting destroyed
 type DeleteStreamMessage struct {
 	CommandMessage
 	Object   interface{}
@@ -1100,6 +1105,9 @@ func (m *CloseStreamMessage) String() string {
 	return fmt.Sprintf("CloseStreamMessage(%d) %v", len(m.Payload), string(b))
 }
 
+// Receive Audio Message
+// NetStream sends the receiveAudio message to inform the server whether to send or not to send the audio to the client
+
 type ReceiveAudioMessage struct {
 	CommandMessage
 	Object   interface{}
@@ -1139,6 +1147,9 @@ func (m *ReceiveAudioMessage) String() string {
 	}
 	return fmt.Sprintf("ReceiveAudioMessage(%d) %v", len(m.Payload), string(b))
 }
+
+// Receive Video Message
+// NetStream sends the receiveVideo message to inform the server whether to send the video to the client or not
 
 type ReceiveVideoMessage struct {
 	CommandMessage
@@ -1180,12 +1191,26 @@ func (m *ReceiveVideoMessage) String() string {
 	return fmt.Sprintf("ReceiveVideoMessage(%d) %v", len(m.Payload), string(b))
 }
 
+// Publish Message
+// The client sends the publish command to publish a named stream to the server. Using this name,
+// any client can play this stream and receive the published audio, video, and data messages
+
 type PublishMessage struct {
 	CommandMessage
 	Object      interface{} `json:",omitempty"`
 	PublishName string
 	PublishType string
 }
+
+// 命令名 -> 命令名,设置为”publish”
+// 传输ID -> 0
+// 命令对象
+// 发布名 -> 流发布的名字
+// 发布类型 -> 设置为”live”，”record”或”append”.
+
+// “record”:流被发布,并且数据被录制到一个新的文件,文件被存储到服务端的服务应用的目录的一个子目录下.如果文件已经存在则重写文件.
+// “append”:流被发布并且附加到一个文件之后.如果没有发现文件则创建一个文件.
+// “live”:发布直播数据而不录制到文件
 
 func (p *PublishMessage) Encode0() {
 	//enc, buf := newAMF0Encoder()
@@ -1289,6 +1314,8 @@ func (m *ReplyPublishMessage) String() string {
 	return fmt.Sprintf("ReplyPublishMessage(%d) %v", len(m.Payload), string(b))
 }
 
+// Seek Message
+// The client sends the seek command to seek the offset (in milliseconds) within a media file or playlist.
 type SeekMessage struct {
 	CommandMessage
 	Object       interface{} `json:",omitempty"`
@@ -1366,12 +1393,20 @@ func (m *ReplySeekMessage) String() string {
 	return fmt.Sprintf("ReplySeekMessage(%d) %v", len(m.Payload), string(b))
 }
 
+
+// Pause Message
+// The client sends the pause command to tell the server to pause or start playing.
 type PauseMessage struct {
 	CommandMessage
 	Object       interface{}
 	Pause        bool
 	Milliseconds uint64
 }
+// 命令名 -> 命令名,设置为”pause”
+// 传输ID -> 0
+// 命令对象 -> null
+// Pause/Unpause Flag -> true 或者 false，来指示暂停或者重新播放
+// milliSeconds -> 流暂停或者重新开始所在的毫秒数.这个是客户端暂停的当前流时间.当回放已恢复时,服务器端值发送带有比这个值大的 timestamp 消息
 
 func (p *PauseMessage) Encode0() {
 	//enc, buf := newAMF0Encoder()

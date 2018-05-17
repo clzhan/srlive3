@@ -12,6 +12,7 @@ import (
 var AppConf struct {
 	RtmpPort       int `json:"RtmpPort"`
 	HttpPort       int `json:"HttpPort"`
+	OperaPort       int `json:"OperaPort"`
 	LogPath        string `json:"LogPath"`
 	LogLvl         int    `json:"LogLvl"`
 	Srvid          int    `json:"Srvid"`

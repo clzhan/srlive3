@@ -10,6 +10,7 @@ import (
 	"github.com/clzhan/srlive3/log"
 	"github.com/clzhan/srlive3/protocol/rtmp"
 	"github.com/clzhan/srlive3/utils"
+	"github.com/clzhan/srlive3/httpopera"
 )
 
 //远程获取pprof数据
@@ -39,7 +40,6 @@ func startHttpServer() error {
 	HttpFlvAddress += ":"
 	HttpFlvAddress += strconv.Itoa(conf.AppConf.HttpPort)
 
-	log.Info("HTTP-Server listen On", HttpFlvAddress)
 	httpServerListen, err = net.Listen("tcp", HttpFlvAddress)
 
 	if err != nil {
@@ -60,13 +60,52 @@ func startHttpServer() error {
 	return err
 }
 
+func startHttpOpera() error {
+	var OperaServerListen net.Listener
+	var err error
+
+	OperaAddress := util.GetLocalIp()
+	OperaAddress += ":"
+	OperaAddress += strconv.Itoa(conf.AppConf.OperaPort)
+
+	OperaServerListen, err = net.Listen("tcp", OperaAddress)
+
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+
+	httpOperaServer := httpopera.NewHttpHttpOpera()
+	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				log.Error("HTTP opera server panic: ", r)
+			}
+		}()
+		log.Info("OperaAddress listen On", OperaAddress)
+		httpOperaServer.Serve(OperaServerListen)
+	}()
+	return err
+}
+
 func main() {
 
 	conf.Init()
 	log.Init()
 
+	InitPprof()
+
 	err := startHttpServer()
-	log.Info("ListenAndServerHttpServer error :", err)
+	if err != nil{
+		log.Info("ListenAndServerHttpServer error :", err)
+	}
+
+
+	err = startHttpOpera()
+	if err != nil{
+		log.Info("ListenAndServerHttpOpera error :", err)
+	}
+
 
 	RtmpAddress := util.GetLocalIp()
 	RtmpAddress += ":"
@@ -79,8 +118,8 @@ func main() {
 
 	log.Debug("rtmp ListenAndServer :", RtmpAddress)
 
-
 	//rtmp.ConnectPull("rtmp://10.10.6.39:1935/live/movie")
+	//rtmp.ConnectPush("rtmp://10.10.6.39:1935/live/movie")
 
 	// do event loop
 	select {}

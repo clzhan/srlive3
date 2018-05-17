@@ -169,7 +169,6 @@ func (s *HttpFlvStream) SendTag(w http.ResponseWriter, r *http.Request, data []b
 	if err != nil {
 		return err
 	}
-
 	w.(http.Flusher).Flush()
 
 	return nil

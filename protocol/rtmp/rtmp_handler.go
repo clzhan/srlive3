@@ -7,6 +7,7 @@ import (
 	"github.com/clzhan/srlive3/log"
 	"github.com/clzhan/srlive3/rtmpconst"
 	"github.com/clzhan/srlive3/stream"
+	"errors"
 )
 
 type ServerHandler interface {
@@ -27,6 +28,15 @@ type DefaultClientHandler struct {
 }
 
 func (this *DefaultClientHandler) OnPublishStart(s *RtmpNetStream) error {
+	//先去找是否有推送的
+	if obj, found := stream.FindObject(s.streamName); !found {
+		return errors.New("OnPublishStart not found")
+	} else {
+		s.obj = obj
+		s.obj.Attach(s)
+		return nil
+	}
+
 	return nil
 }
 func (this *DefaultClientHandler) OnPlayStart(s *RtmpNetStream) error {
